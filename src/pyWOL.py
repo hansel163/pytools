@@ -15,6 +15,7 @@ import time
 import signal
 
 BROADCAST_ADDR = '<broadcast>'
+UDP_PORT = 9
 count = 0
 
 def define_cmd_line():
@@ -48,7 +49,7 @@ def send_wol_packet(data):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind(('', 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        num = s.sendto(data, (BROADCAST_ADDR, 9))
+        num = s.sendto(data, (BROADCAST_ADDR, UDP_PORT))
     finally:
         s.close()
     return num
@@ -74,7 +75,8 @@ def main():
         signal.signal(signal.SIGINT, terminal)
         while count < options.num or options.always:
             num = send_wol_packet(data)
-            print("#%d: sent %d bytes to MAC=%s" % (count, num, mac_str))
+            print("#%d: sent %d bytes WOL packet to ip=%s:%d for MAC=%s"
+                % (count, num, BROADCAST_ADDR, UDP_PORT, mac_str))
             count = count + 1
             time.sleep(1)
     except ValueError as e:
